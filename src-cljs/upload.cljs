@@ -1,12 +1,9 @@
 (ns awsuplclj
   (:require [ajax.core :as ajax :refer [POST]]
-            [dommy.core :as dommy]
             [cljs.core.async :as async :refer [chan put!]]
-            [goog.events :as events]
             [cljs-time.core :as t]
             [cljs-time.format :as tf])
-  (:require-macros [cljs.core.async.macros :refer [go]])
-  (:use-macros [dommy.macros :only [node sel sel1]]))
+  (:require-macros [cljs.core.async.macros :refer [go]]))
 
 (def upload-queue (atom []))
 
@@ -17,7 +14,7 @@
    http://swannodette.github.io/2013/11/07/clojurescript-101/"
   [el type]
   (let [out (chan)]
-    (events/listen el type
+    (goog.events/listen el type
                    (fn [e] (put! out e)))
     out))
 
@@ -25,7 +22,7 @@
   "Add `file` to the upload queue."
   [file]
   (swap! upload-queue conj {:file file
-                            :formdata (doto (js/FormData. (sel1 :form#s3_fields))
+                            :formdata (doto (js/FormData. (.getElementById js/document "s3_fields"))
                                         (.append "Content-Type" (.-type file))
                                         (.append "file" file (str (.-name file))))}))
 
@@ -38,7 +35,7 @@
     ;; Status 4 means 'DONE', per https://developer.mozilla.org/en/docs/Web/API/XMLHttpRequest
     (aset req "onreadystatechange" #(when (= (.-readyState req) 4)
                                       (go (>! ch req))))
-    (.open req "POST" (dommy/attr s3-template-form :action))
+    (.open req "POST" (aget s3-template-form "action"))
     (.send req form-data)))
 
 (defn listen-for-files!
@@ -46,13 +43,14 @@
   to the `upload-queue`."
   []
   (go (while true
-        (doseq [file (array-seq (.-files (.-target (<! (listen (sel1 :input#files) "change")))))]
+        (doseq [file (array-seq (.-files (.-target (<! (listen (.getElementById js/document "files")
+                                                               "change")))))]
           (enqueue-file! file)))))
 
 (defn upload-files []
   (go (let [c (chan 1)]
         (doseq [f @upload-queue]
-          (upload-to-s3! (:formdata f) (sel1 :form#s3_fields) c)
+          (upload-to-s3! (:formdata f) (.getElementById js/document "s3_fields") c)
           (when (= 201 (.-status (<! c))) ;; Successfully uploaded this file
             )))))
 

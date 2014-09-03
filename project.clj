@@ -11,7 +11,6 @@
                  [org.clojure/data.json "0.2.5"]
                  [lib-noir "0.8.3"]
                  [org.clojure/core.async "0.1.303.0-886421-alpha"]
-                 [prismatic/dommy "0.1.2"]
                  [cljs-ajax "0.2.4"]
                  [com.andrewmcveigh/cljs-time "0.1.5"]]
   :plugins [[lein-ring "0.8.10"]
