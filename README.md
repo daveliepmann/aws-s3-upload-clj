@@ -18,7 +18,7 @@ for your Amazon credentials. Then `lein ring server`, select some
 files, and click the upload button. Boom--you just saved yourself
 hours of double-checking encodings and writing workaround code.
 
-## How
+## How?
 
 We present the user with a file selection dialog. Included on the page
 is a hidden form with a set of authentication fields, including a
