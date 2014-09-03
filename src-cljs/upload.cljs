@@ -5,7 +5,9 @@
             [cljs-time.format :as tf])
   (:require-macros [cljs.core.async.macros :refer [go]]))
 
-(def upload-queue (atom []))
+(def upload-queue
+  "Files that have been queued for upload."
+  (atom []))
 
 (defn listen
   "Listen for events of `type` on element `el`.
@@ -48,11 +50,15 @@
           (enqueue-file! file)))))
 
 (defn upload-files []
+  "Attach each file in the `upload-queue` to the form data in the
+  #s3_fields form, and send it to the AWS S3 bucket nominated by that
+  form."
   (go (let [c (chan 1)]
         (doseq [f @upload-queue]
           (upload-to-s3! (:formdata f) (.getElementById js/document "s3_fields") c)
           (when (= 201 (.-status (<! c))) ;; Successfully uploaded this file
             )))))
 
+;; Whenever the user selects one or more files, add them to the upload queue.
 (aset js/document "onreadystatechange" #(when (= "complete" (. js/document -readyState))
                                           (listen-for-files!)))
