@@ -1,14 +1,14 @@
 # aws-s3-upload-clj
 
-A minimal example of batch uploading files to Amazon Web Service's
+A minimal example of batch uploading files directly to Amazon Web Service's
 Simple Storage Service (AWS S3) using Clojure.
 
 ## Why?
 
-Amazon's inability to receive batch file uploads, left unchecked, will
-inexorably lead to endless re-implementation of the same boilerplate
-code to manually send a batch of files one by one. Plus,
-authenticating POSTs to AWS can be tricky.
+Amazon's inability to receive batch file uploads direct to S3, left
+unchecked, will inexorably lead to endless re-implementation of the
+same boilerplate code to manually send a batch of files one by
+one. Plus, authenticating direct POSTs to AWS can be tricky.
 
 ## Usage
 
@@ -31,7 +31,7 @@ A listener waits for file selection events, adding any selected files
 to the `upload-queue` atom. When the user initiates the upload, each
 file in the `upload-queue` is individually wrapped up in an POST along
 with the authentication field data contained in the hidden form. This
-POST is sent to S3 with a core.async channel waiting on its
+POST is sent direct to S3 with a core.async channel waiting on its
 completion. See `src-cljs/upload.cljs`.
 
 ## License
